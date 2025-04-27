@@ -24,4 +24,43 @@ public class Product {
     @JoinColumn(name = "order_id")
     private Order order;
 
+    public Long getProductId() {
+        return productId;
+    }
+
+    public void setProductId(Long productId) {
+        this.productId = productId;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
+    public Double getPriceOfUnit() {
+        return priceOfUnit;
+    }
+
+    public void setPriceOfUnit(Double priceOfUnit) {
+        this.priceOfUnit = priceOfUnit;
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
+    }
 }
