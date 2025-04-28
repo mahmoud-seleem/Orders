@@ -2,6 +2,7 @@ package com.example.orders.core.domain.servicesImp;
 
 import com.example.orders.core.application.dto.OrderDetailsDto;
 import com.example.orders.core.application.dto.ProductDetailsDto;
+import com.example.orders.core.application.services.OrderService;
 import com.example.orders.core.domain.entities.Order;
 import com.example.orders.core.domain.entities.Product;
 import com.example.orders.core.infrastructure.repository.OrderRepo;
@@ -14,7 +15,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 @Service
-public class OrdersService {
+public class OrdersService implements OrderService {
 
     @Autowired
     private OrderRepo orderRepo;
