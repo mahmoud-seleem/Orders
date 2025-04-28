@@ -12,7 +12,7 @@ public class Product {
     private Long productKey = null;
 
     @Column(name = "product_id")
-    private Long productId;
+    private Integer productId;
 
     @Column(name = "product_name")
     private String productName;
@@ -35,11 +35,11 @@ public class Product {
         this.productKey = productKey;
     }
 
-    public Long getProductId() {
+    public Integer getProductId() {
         return productId;
     }
 
-    public void setProductId(Long productId) {
+    public void setProductId(Integer productId) {
         this.productId = productId;
     }
 

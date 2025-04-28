@@ -5,10 +5,13 @@ import com.example.orders.core.application.dto.ProductDetailsDto;
 import com.example.orders.core.application.services.OrderService;
 import com.example.orders.core.domain.entities.Order;
 import com.example.orders.core.domain.entities.Product;
+import com.example.orders.core.infrastructure.externalApis.InventoryClient;
 import com.example.orders.core.infrastructure.repository.OrderRepo;
 import com.example.orders.core.infrastructure.repository.ProductRepo;
 import jakarta.transaction.Transactional;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
@@ -23,6 +26,9 @@ public class OrdersService implements OrderService {
     @Autowired
     private ProductRepo productRepo;
 
+    @Autowired
+    private InventoryClient inventoryClient;
+
     @Transactional
     public OrderDetailsDto createNewOrder(OrderDetailsDto orderDetailsDto) throws Exception {
         // validation
@@ -32,9 +38,23 @@ public class OrdersService implements OrderService {
         List<Product> products = order.getProducts();
         for(ProductDetailsDto productDetailsDto : orderDetailsDto.getProductsDetails()){
             Product product = populateProduct(new Product(),productDetailsDto);
-            product.setOrder(order);
-            totalPrice += product.getPriceOfUnit() * product.getQuantity();
-            products.add(product);
+            ResponseEntity<Void> response = null;
+            try{
+                response =
+                        inventoryClient.isProductExist(product.getProductId(), product.getProductName());
+            }catch (Exception e){
+
+            }
+            System.out.println("-----------------------------------");
+            System.out.println(response);
+            System.out.println("-----------------------------------");
+            if(response.getStatusCode().value() == 200){
+                product.setOrder(order);
+                totalPrice += product.getPriceOfUnit() * product.getQuantity();
+                products.add(product);
+            }else {
+                throw new BadRequestException("product not exist!");
+            }
         }
         order.setTotalPrice(totalPrice);
         order.setOrderDate(new Date());
