@@ -8,6 +8,9 @@ public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "product_key")
+    private Long productKey = null;
+
     @Column(name = "product_id")
     private Long productId;
 
@@ -23,6 +26,14 @@ public class Product {
     @ManyToOne
     @JoinColumn(name = "order_id")
     private Order order;
+
+    public Long getProductKey() {
+        return productKey;
+    }
+
+    public void setProductKey(Long productKey) {
+        this.productKey = productKey;
+    }
 
     public Long getProductId() {
         return productId;

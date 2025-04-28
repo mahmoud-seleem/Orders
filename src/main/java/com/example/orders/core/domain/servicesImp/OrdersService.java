@@ -32,29 +32,37 @@ public class OrdersService implements OrderService {
         List<Product> products = order.getProducts();
         for(ProductDetailsDto productDetailsDto : orderDetailsDto.getProductsDetails()){
             Product product = populateProduct(new Product(),productDetailsDto);
+            product.setOrder(order);
             totalPrice += product.getPriceOfUnit() * product.getQuantity();
             products.add(product);
         }
         order.setTotalPrice(totalPrice);
         order.setOrderDate(new Date());
-        return populateOrderDto(orderRepo.saveAndFlush(order),orderDetailsDto);
+        Order newOrder = orderRepo.save(order);
+        return populateOrderDto(newOrder,orderDetailsDto);
     }
 
     @Transactional
     public OrderDetailsDto updateOrder(OrderDetailsDto orderDetailsDto) throws Exception {
         // validation
         Order order = orderRepo.findById(orderDetailsDto.getOrderId()).get();
-        order.setProducts(new ArrayList<>());
         Double totalPrice = 0.0;
         List<Product> products = order.getProducts();
+        for(Product product : products){
+            productRepo.delete(product);
+            products.remove(product);
+        }
         for(ProductDetailsDto productDetailsDto : orderDetailsDto.getProductsDetails()){
             Product product = populateProduct(new Product(),productDetailsDto);
+            product.setOrder(order);
             totalPrice += product.getPriceOfUnit() * product.getQuantity();
             products.add(product);
         }
+        order.setProducts(products);
         order.setTotalPrice(totalPrice);
         order.setOrderDate(new Date());
-        return populateOrderDto(orderRepo.saveAndFlush(order),orderDetailsDto);
+        Order newOrder = orderRepo.saveAndFlush(order);
+        return populateOrderDto(newOrder,orderDetailsDto);
     }
 
     @Transactional
@@ -91,11 +99,13 @@ public class OrdersService implements OrderService {
         for (Field dtoField : getAllFields(dtoClass)) {
             dtoField.setAccessible(true);
             Object value = dtoField.get(dto); // Get DTO field value
-            if (value != null) { // Only map non-null values
+            if (value != null) {
+                if (!dtoField.getName().equals("productKey")){// Only map non-null values
                 Field entityField = getField(entityClass, dtoField.getName());
                     entityField.setAccessible(true);
                     entityField.set(product, value); // Set value in entity
                 }
+            }
             }
         return product;
     }
@@ -108,8 +118,10 @@ public class OrdersService implements OrderService {
             Object value = entityField.get(product); // Get DTO field value
             if (value != null) { // Only map non-null values
                 Field dtoField = getField(dtoClass, entityField.getName());
+                if(dtoField != null){
                 dtoField.setAccessible(true);
                 dtoField.set(dto, value); // Set value in entity
+            }
             }
         }
         return dto;
@@ -121,10 +133,12 @@ public class OrdersService implements OrderService {
         for (Field entityField : getAllFields(entityClass)) {
             entityField.setAccessible(true);
             Object value = entityField.get(order); // Get DTO field value
-            if (value != null) { // Only map non-null values
+            if (value != null) {// Only map non-null values
                 Field dtoField = getField(dtoClass, entityField.getName());
-                dtoField.setAccessible(true);
-                dtoField.set(dto, value); // Set value in entity
+                if (dtoField != null){
+                    dtoField.setAccessible(true);
+                    dtoField.set(dto, value); // Set value in entity
+                }
             }
         }
         dto.setProductsDetails(new ArrayList<>());

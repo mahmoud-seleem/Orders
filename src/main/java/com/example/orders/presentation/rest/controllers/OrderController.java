@@ -9,18 +9,18 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/order")
-public class OrderController {
+public class OrderController { // to implement controller interface (and put the swagger doc on it )
 
     @Autowired
     private OrderService orderService;
 
     @PostMapping("/new")
-    public OrderDetailsDto createNewOrder(OrderDetailsDto orderDetailsDto) throws Exception{
+    public OrderDetailsDto createNewOrder(@RequestBody OrderDetailsDto orderDetailsDto) throws Exception{
         return orderService.createNewOrder(orderDetailsDto);
     }
 
     @PutMapping("/update")
-    public OrderDetailsDto updateOrder(OrderDetailsDto orderDetailsDto) throws Exception{
+    public OrderDetailsDto updateOrder(@RequestBody OrderDetailsDto orderDetailsDto) throws Exception{
         return orderService.updateOrder(orderDetailsDto);
     }
 
