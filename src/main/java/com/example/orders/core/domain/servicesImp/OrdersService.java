@@ -40,13 +40,47 @@ public class OrdersService {
     }
 
     @Transactional
-    public List<OrderDetailsDto> getAllOrders(){
+    public OrderDetailsDto updateOrder(OrderDetailsDto orderDetailsDto) throws Exception {
+        // validation
+        Order order = orderRepo.findById(orderDetailsDto.getOrderId()).get();
+        order.setProducts(new ArrayList<>());
+        Double totalPrice = 0.0;
+        List<Product> products = order.getProducts();
+        for(ProductDetailsDto productDetailsDto : orderDetailsDto.getProductsDetails()){
+            Product product = populateProduct(new Product(),productDetailsDto);
+            totalPrice += product.getPriceOfUnit() * product.getQuantity();
+            products.add(product);
+        }
+        order.setTotalPrice(totalPrice);
+        order.setOrderDate(new Date());
+        return populateOrderDto(orderRepo.saveAndFlush(order),orderDetailsDto);
+    }
+
+    @Transactional
+    public List<OrderDetailsDto> getAllOrders() throws Exception {
         List<OrderDetailsDto> result = new ArrayList<>();
         for(Order order : orderRepo.findAll()){
-            result.add(populateOrderDto())
+            result.add(populateOrderDto(order,new OrderDetailsDto()));
         }
         return result;
     }
+
+    @Transactional
+    public OrderDetailsDto getOrderById(Long orderId) throws Exception {
+        // validation
+        Order order = orderRepo.findById(orderId).get();
+        return populateOrderDto(order,new OrderDetailsDto());
+    }
+
+    @Transactional
+    public OrderDetailsDto deleteOrderById(Long orderId) throws Exception {
+        // validation
+        Order order = orderRepo.findById(orderId).get();
+        orderRepo.delete(order);
+        return populateOrderDto(order,new OrderDetailsDto());
+    }
+
+
 
 
     private Product populateProduct(Product product,ProductDetailsDto dto) throws Exception {
@@ -91,6 +125,10 @@ public class OrdersService {
                 dtoField.setAccessible(true);
                 dtoField.set(dto, value); // Set value in entity
             }
+        }
+        dto.setProductsDetails(new ArrayList<>());
+        for(Product product : order.getProducts()){
+            dto.getProductsDetails().add(populateProductDto(product,new ProductDetailsDto()));
         }
         return dto;
     }

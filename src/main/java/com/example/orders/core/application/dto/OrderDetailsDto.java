@@ -12,6 +12,10 @@ public class OrderDetailsDto {
     private Date orderDate;
     private Double totalPrice;
 
+
+    public OrderDetailsDto() {
+    }
+
     public OrderDetailsDto(Long orderId, List<ProductDetailsDto> productsDetails, Date orderDate, Double totalPrice) {
         this.orderId = orderId;
         this.productsDetails = productsDetails;
