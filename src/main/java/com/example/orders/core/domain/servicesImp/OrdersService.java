@@ -8,6 +8,7 @@ import com.example.orders.core.domain.entities.Product;
 import com.example.orders.core.infrastructure.externalApis.InventoryClient;
 import com.example.orders.core.infrastructure.repository.OrderRepo;
 import com.example.orders.core.infrastructure.repository.ProductRepo;
+import com.example.orders.shared.utils.CustomValidationException;
 import com.example.orders.shared.utils.Validation;
 import jakarta.transaction.Transactional;
 import org.apache.coyote.BadRequestException;
@@ -42,6 +43,7 @@ public class OrdersService implements OrderService {
         List<Product> products = order.getProducts();
         for(ProductDetailsDto productDetailsDto : orderDetailsDto.getProductsDetails()) {
             Product product = populateProduct(new Product(), productDetailsDto);
+            reserveProductFromInventory(product.getProductId(),product.getQuantity());
             product.setOrder(order);
             totalPrice += product.getPriceOfUnit() * product.getQuantity();
             products.add(product);
@@ -55,6 +57,7 @@ public class OrdersService implements OrderService {
     @Transactional
     public OrderDetailsDto updateOrder(OrderDetailsDto orderDetailsDto) throws Exception {
         // validation
+        // validation.validateUpdateOrderDetailsDto(orderDetailsDto);
         Order order = orderRepo.findById(orderDetailsDto.getOrderId()).get();
         Double totalPrice = 0.0;
         List<Product> products = order.getProducts();
@@ -99,7 +102,16 @@ public class OrdersService implements OrderService {
         return populateOrderDto(order,new OrderDetailsDto());
     }
 
-
+    private void reserveProductFromInventory(Integer productId,Integer quantity){
+        try{
+            inventoryClient.reserveProduct(productId,quantity);
+        }catch (Exception e){
+            throw new CustomValidationException(
+                    "problem has occurred during reserving the product",
+                    "ProductId / Quantity",
+                    productId+" / "+quantity);
+        }
+    }
 
 
     private Product populateProduct(Product product,ProductDetailsDto dto) throws Exception {

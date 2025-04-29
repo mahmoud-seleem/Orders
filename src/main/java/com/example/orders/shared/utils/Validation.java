@@ -2,7 +2,10 @@ package com.example.orders.shared.utils;
 
 import com.example.orders.core.application.dto.OrderDetailsDto;
 import com.example.orders.core.application.dto.ProductDetailsDto;
+import com.example.orders.core.domain.entities.Order;
 import com.example.orders.core.infrastructure.externalApis.InventoryClient;
+import com.example.orders.core.infrastructure.repository.OrderRepo;
+import com.example.orders.core.infrastructure.repository.ProductRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -15,12 +18,27 @@ import java.util.List;
 public class Validation {
 
     @Autowired
+    private OrderRepo orderRepo;
+
+    @Autowired
+    private ProductRepo productRepo;
+
+    @Autowired
     private InventoryClient inventoryClient;
 
     public void validateNewOrderDetailsDto(OrderDetailsDto dto) throws IllegalAccessException {
         for(ProductDetailsDto productDetailsDto : dto.getProductsDetails()){
             validateProductDto(productDetailsDto);
         }
+    }
+    public void validateUpdateOrderDetailsDto(OrderDetailsDto dto) throws IllegalAccessException {
+        for(ProductDetailsDto productDetailsDto : dto.getProductsDetails()){
+            validateProductDto(productDetailsDto);
+        }
+    }
+
+    public void isOrderExist(OrderDetailsDto dto){
+        Order order = orderRepo.findById(dto.getOrderId()).get();
     }
 
     public void validateProductDto(ProductDetailsDto dto) throws IllegalAccessException {
@@ -36,6 +54,7 @@ public class Validation {
         try{
             response = inventoryClient.isProductExist(dto.getProductId(),dto.getProductName());
         }catch (Exception e){
+            System.out.println(e);
             throw new CustomValidationException(
                     "product with Id / Name is not exist!",
                     "productId / productName",
