@@ -9,7 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/order")
-public class OrderController { // to implement controller interface (and put the swagger doc on it )
+public class OrderController implements OrderControllerInterface { // to implement controller interface (and put the swagger doc on it )
 
     @Autowired
     private OrderService orderService;
