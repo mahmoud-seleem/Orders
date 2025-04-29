@@ -10,6 +10,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface InventoryClient {
 
     @GetMapping("/productExist")
-    ResponseEntity<Void> isProductExist(@RequestParam(name = "id") Integer id, @RequestParam(name = "ProductName") String name);
+    ResponseEntity<Integer> isProductExist(@RequestParam(name = "id") Integer id, @RequestParam(name = "ProductName") String name);
 
 }

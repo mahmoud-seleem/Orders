@@ -1,13 +1,58 @@
 package com.example.orders.shared.utils;
 
+import com.example.orders.core.application.dto.OrderDetailsDto;
+import com.example.orders.core.application.dto.ProductDetailsDto;
+import com.example.orders.core.infrastructure.externalApis.InventoryClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 public class Validation {
 
+    @Autowired
+    private InventoryClient inventoryClient;
 
+    public void validateNewOrderDetailsDto(OrderDetailsDto dto) throws IllegalAccessException {
+        for(ProductDetailsDto productDetailsDto : dto.getProductsDetails()){
+            validateProductDto(productDetailsDto);
+        }
+    }
 
+    public void validateProductDto(ProductDetailsDto dto) throws IllegalAccessException {
+        for(Field field : getAllFields(dto.getClass())){
+            field.setAccessible(true);
+            isNotNull(field.get(dto),field.getName());
+        }
+        isProductExistAndSufficient(dto);
+    }
+
+    public void isProductExistAndSufficient(ProductDetailsDto dto){
+        ResponseEntity<Integer> response;
+        try{
+            response = inventoryClient.isProductExist(dto.getProductId(),dto.getProductName());
+        }catch (Exception e){
+            throw new CustomValidationException(
+                    "product with Id / Name is not exist!",
+                    "productId / productName",
+                    dto.getProductId()+" / "+dto.getProductName());
+        }
+        isStockSufficient(dto.getQuantity(),response.getBody());
+    }
+
+    public void isStockSufficient(Integer quantity,Integer stock){
+        if (stock  >= quantity){
+            return;
+        }
+        throw new CustomValidationException(
+                "product stock of this Id is not sufficient ",
+                "available stock quantity",
+                stock);
+    }
     public void isNotNull(Object value, String name) {
         if (value == null) {
             throw new CustomValidationException("field can't be null !!", name, null);
@@ -31,6 +76,15 @@ public class Validation {
             }
         }
         return null; // Field not found
+    }
+
+    private static List<Field> getAllFields(Class<?> clazz) {
+        List<Field> fields = new ArrayList<>();
+        while (clazz != null) {
+            fields.addAll(Arrays.stream(clazz.getDeclaredFields()).toList());
+            clazz = clazz.getSuperclass();
+        }
+        return fields;
     }
 
 }

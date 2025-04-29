@@ -8,6 +8,7 @@ import com.example.orders.core.domain.entities.Product;
 import com.example.orders.core.infrastructure.externalApis.InventoryClient;
 import com.example.orders.core.infrastructure.repository.OrderRepo;
 import com.example.orders.core.infrastructure.repository.ProductRepo;
+import com.example.orders.shared.utils.Validation;
 import jakarta.transaction.Transactional;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,32 +30,21 @@ public class OrdersService implements OrderService {
     @Autowired
     private InventoryClient inventoryClient;
 
+    @Autowired
+    private Validation validation;
     @Transactional
     public OrderDetailsDto createNewOrder(OrderDetailsDto orderDetailsDto) throws Exception {
         // validation
+        validation.validateNewOrderDetailsDto(orderDetailsDto);
         Order order = new Order();
         order.setProducts(new ArrayList<>());
         Double totalPrice = 0.0;
         List<Product> products = order.getProducts();
-        for(ProductDetailsDto productDetailsDto : orderDetailsDto.getProductsDetails()){
-            Product product = populateProduct(new Product(),productDetailsDto);
-            ResponseEntity<Void> response = null;
-            try{
-                response =
-                        inventoryClient.isProductExist(product.getProductId(), product.getProductName());
-            }catch (Exception e){
-
-            }
-            System.out.println("-----------------------------------");
-            System.out.println(response);
-            System.out.println("-----------------------------------");
-            if(response.getStatusCode().value() == 200){
-                product.setOrder(order);
-                totalPrice += product.getPriceOfUnit() * product.getQuantity();
-                products.add(product);
-            }else {
-                throw new BadRequestException("product not exist!");
-            }
+        for(ProductDetailsDto productDetailsDto : orderDetailsDto.getProductsDetails()) {
+            Product product = populateProduct(new Product(), productDetailsDto);
+            product.setOrder(order);
+            totalPrice += product.getPriceOfUnit() * product.getQuantity();
+            products.add(product);
         }
         order.setTotalPrice(totalPrice);
         order.setOrderDate(new Date());
