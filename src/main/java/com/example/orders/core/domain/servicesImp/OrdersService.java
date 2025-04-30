@@ -106,16 +106,16 @@ public class OrdersService implements OrderService {
         return populateOrderDto(order,new OrderDetailsDto());
     }
 
-    private void reserveProductFromInventory(Integer productId,Integer quantity){
-        try{
-            inventoryClient.reserveProduct(productId,quantity);
-        }catch (Exception e){
-            throw new CustomValidationException(
-                    "problem has occurred during reserving the product",
-                    "ProductId / Quantity",
-                    productId+" / "+quantity);
-        }
-    }
+//    private void reserveProductFromInventory(Integer productId,Integer quantity){
+//        try{
+//            inventoryClient.reserveProduct(productId,quantity);
+//        }catch (Exception e){
+//            throw new CustomValidationException(
+//                    "problem has occurred during reserving the product",
+//                    "ProductId / Quantity",
+//                    productId+" / "+quantity);
+//        }
+//    }
 
 
 

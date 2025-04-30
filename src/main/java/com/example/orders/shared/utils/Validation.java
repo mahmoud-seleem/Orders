@@ -73,7 +73,7 @@ public class Validation {
         try{
             response = grpcInventoryClient.checkProductExistence(dto.getProductId(),dto.getProductName());
         }catch (Exception e){
-            System.out.println(e);
+            e.printStackTrace();
             throw new CustomValidationException(
                     "product with Id / Name is not exist!",
                     "productId / productName",
