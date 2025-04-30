@@ -1,0 +1,27 @@
+syntax = "proto3";
+package com.example.inventory;
+option java_multiple_files = true;
+
+// Service definition
+service InventoryService {
+    rpc IsProductExist(ProductRequest) returns (IsProductExistResponse);
+    rpc ReserveProduct(ReserveProductRequest) returns (ReserveProductResponse);
+}
+
+// Request/Response messages
+message ProductRequest {
+    int32 id = 1;
+    string name = 2;
+}
+message IsProductExistResponse {
+    int32 stock = 1;
+}
+
+message ReserveProductRequest {
+    int32 id = 1;
+    int32 quantity = 2;
+}
+
+message ReserveProductResponse {
+    bool success = 1;
+}

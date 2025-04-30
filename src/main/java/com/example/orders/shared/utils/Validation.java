@@ -1,8 +1,10 @@
 package com.example.orders.shared.utils;
 
+import com.example.inventory.IsProductExistResponse;
 import com.example.orders.core.application.dto.OrderDetailsDto;
 import com.example.orders.core.application.dto.ProductDetailsDto;
 import com.example.orders.core.domain.entities.Order;
+import com.example.orders.core.infrastructure.externalApis.GRPCInventoryClient;
 import com.example.orders.core.infrastructure.externalApis.InventoryClient;
 import com.example.orders.core.infrastructure.repository.OrderRepo;
 import com.example.orders.core.infrastructure.repository.ProductRepo;
@@ -26,6 +28,9 @@ public class Validation {
     @Autowired
     private InventoryClient inventoryClient;
 
+    @Autowired
+    private GRPCInventoryClient grpcInventoryClient;
+
     public void validateNewOrderDetailsDto(OrderDetailsDto dto) throws IllegalAccessException {
         for(ProductDetailsDto productDetailsDto : dto.getProductsDetails()){
             validateProductDto(productDetailsDto);
@@ -46,8 +51,9 @@ public class Validation {
             field.setAccessible(true);
             isNotNull(field.get(dto),field.getName());
         }
-        isProductExistAndSufficient(dto);
-    }
+        // isProductExistAndSufficient(dto);
+        isProductExistAndSufficientGrpcVersion(dto);
+        }
 
     public void isProductExistAndSufficient(ProductDetailsDto dto){
         ResponseEntity<Integer> response;
@@ -61,6 +67,19 @@ public class Validation {
                     dto.getProductId()+" / "+dto.getProductName());
         }
         isStockSufficient(dto.getQuantity(),response.getBody());
+    }
+    public void isProductExistAndSufficientGrpcVersion(ProductDetailsDto dto){
+        IsProductExistResponse response;
+        try{
+            response = grpcInventoryClient.isProductExist(dto.getProductId(),dto.getProductName());
+        }catch (Exception e){
+            System.out.println(e);
+            throw new CustomValidationException(
+                    "product with Id / Name is not exist!",
+                    "productId / productName",
+                    dto.getProductId()+" / "+dto.getProductName());
+        }
+        isStockSufficient(dto.getQuantity(),response.getStock());
     }
 
     public void isStockSufficient(Integer quantity,Integer stock){

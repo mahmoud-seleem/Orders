@@ -5,6 +5,7 @@ import com.example.orders.core.application.dto.ProductDetailsDto;
 import com.example.orders.core.application.services.OrderService;
 import com.example.orders.core.domain.entities.Order;
 import com.example.orders.core.domain.entities.Product;
+import com.example.orders.core.infrastructure.externalApis.GRPCInventoryClient;
 import com.example.orders.core.infrastructure.externalApis.InventoryClient;
 import com.example.orders.core.infrastructure.repository.OrderRepo;
 import com.example.orders.core.infrastructure.repository.ProductRepo;
@@ -12,6 +13,7 @@ import com.example.orders.shared.utils.CustomValidationException;
 import com.example.orders.shared.utils.Validation;
 import jakarta.transaction.Transactional;
 import org.apache.coyote.BadRequestException;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -28,9 +30,11 @@ public class OrdersService implements OrderService {
     @Autowired
     private ProductRepo productRepo;
 
-    @Autowired
-    private InventoryClient inventoryClient;
+//    @Autowired
+//    private InventoryClient inventoryClient;
 
+    @Autowired
+    private GRPCInventoryClient inventoryClient;
     @Autowired
     private Validation validation;
     @Transactional
@@ -112,6 +116,7 @@ public class OrdersService implements OrderService {
                     productId+" / "+quantity);
         }
     }
+
 
 
     private Product populateProduct(Product product,ProductDetailsDto dto) throws Exception {
