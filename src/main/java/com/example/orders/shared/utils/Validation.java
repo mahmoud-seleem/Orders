@@ -1,6 +1,6 @@
 package com.example.orders.shared.utils;
 
-import com.example.inventory.IsProductExistResponse;
+import com.example.inventory.ProductExistenceResponse;
 import com.example.orders.core.application.dto.OrderDetailsDto;
 import com.example.orders.core.application.dto.ProductDetailsDto;
 import com.example.orders.core.domain.entities.Order;
@@ -69,9 +69,9 @@ public class Validation {
         isStockSufficient(dto.getQuantity(),response.getBody());
     }
     public void isProductExistAndSufficientGrpcVersion(ProductDetailsDto dto){
-        IsProductExistResponse response;
+        ProductExistenceResponse response;
         try{
-            response = grpcInventoryClient.isProductExist(dto.getProductId(),dto.getProductName());
+            response = grpcInventoryClient.checkProductExistence(dto.getProductId(),dto.getProductName());
         }catch (Exception e){
             System.out.println(e);
             throw new CustomValidationException(
@@ -79,7 +79,7 @@ public class Validation {
                     "productId / productName",
                     dto.getProductId()+" / "+dto.getProductName());
         }
-        isStockSufficient(dto.getQuantity(),response.getStock());
+        isStockSufficient(dto.getQuantity(),response.getQuantity());
     }
 
     public void isStockSufficient(Integer quantity,Integer stock){

@@ -47,7 +47,7 @@ public class OrdersService implements OrderService {
         List<Product> products = order.getProducts();
         for(ProductDetailsDto productDetailsDto : orderDetailsDto.getProductsDetails()) {
             Product product = populateProduct(new Product(), productDetailsDto);
-            reserveProductFromInventory(product.getProductId(),product.getQuantity());
+           // reserveProductFromInventory(product.getProductId(),product.getQuantity());
             product.setOrder(order);
             totalPrice += product.getPriceOfUnit() * product.getQuantity();
             products.add(product);
