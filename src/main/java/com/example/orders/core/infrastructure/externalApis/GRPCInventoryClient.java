@@ -28,8 +28,11 @@ public class GRPCInventoryClient  {
 //    CallOptions callOptions = CallOptions.DEFAULT.withDeadlineAfter(5, TimeUnit.SECONDS);
 
     // Create a blocking stub (you can also use async)
-    InventoryGrpcServiceGrpc.InventoryGrpcServiceBlockingStub stub =
-            InventoryGrpcServiceGrpc.newBlockingStub(channel).withWaitForReady();
+//    InventoryGrpcServiceGrpc.InventoryGrpcServiceBlockingStub stub =
+//            InventoryGrpcServiceGrpc.newBlockingStub(channel).withWaitForReady();
+
+    @Autowired
+    private InventoryGrpcServiceGrpc.InventoryGrpcServiceBlockingStub stub;
 
     // Make the gRPC call
 
