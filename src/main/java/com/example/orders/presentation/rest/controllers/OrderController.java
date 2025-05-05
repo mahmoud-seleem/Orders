@@ -2,6 +2,7 @@ package com.example.orders.presentation.rest.controllers;
 
 import com.example.orders.core.application.dto.OrderDetailsDto;
 import com.example.orders.core.application.services.OrderService;
+import com.example.orders.core.infrastructure.externalApis.GRPCInventoryClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +15,15 @@ public class OrderController implements OrderControllerInterface { // to impleme
     @Autowired
     private OrderService orderService;
 
+    @Autowired
+    private GRPCInventoryClient inventoryClient;
+
+    @GetMapping("/check-product/{productId}/{productName}")
+    public boolean checkProductExistence(@PathVariable int productId,
+                                         @PathVariable String productName) {
+        boolean exists = inventoryClient.checkProductExistence(productId, productName).getExists();
+        return exists;
+    }
     @PostMapping("/new")
     public OrderDetailsDto createNewOrder(@RequestBody OrderDetailsDto orderDetailsDto) throws Exception{
         return orderService.createNewOrder(orderDetailsDto);
