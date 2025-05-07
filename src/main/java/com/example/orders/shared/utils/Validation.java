@@ -51,8 +51,8 @@ public class Validation {
             field.setAccessible(true);
             isNotNull(field.get(dto),field.getName());
         }
-        // isProductExistAndSufficient(dto);
-        isProductExistAndSufficientGrpcVersion(dto);
+        isProductExistAndSufficient(dto);
+        //isProductExistAndSufficientGrpcVersion(dto);
         }
 
     public void isProductExistAndSufficient(ProductDetailsDto dto){
